@@ -1,0 +1,18 @@
+name: "Observability Rules Validation"
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate YAML
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('prometheus/rules/sre_alerts.yaml'))"
+          python3 -c "import yaml; yaml.safe_load(open('otel-collector/config.yaml'))"
+          python3 -c "import json; json.load(open('grafana/dashboards/sre-slo-metrics.json'))"

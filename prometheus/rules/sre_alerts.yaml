@@ -1,0 +1,25 @@
+groups:
+  - name: SRE-Production-SLO-Alerts
+    rules:
+      - alert: ServiceErrorBudgetBurnHigh
+        expr: (
+            sum(rate(http_requests_total{status=~"5.."}[1h]))
+            /
+            sum(rate(http_requests_total[1h]))
+          ) > 0.02
+        for: 5m
+        labels:
+          severity: critical
+          tier: sre-p1
+        annotations:
+          summary: "Error Budget Burn Rate > 2% in the last 1 hour"
+          description: "Service {{ $labels.service }} is consuming error budget rapidly. Current error rate is {{ $value | humanizePercentage }}."
+
+      - alert: KubernetesNodeMemoryPressure
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+          tier: infrastructure
+        annotations:
+          summary: "Kubernetes Node {{ $labels.instance }} has less than 10% available memory."
